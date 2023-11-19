@@ -37,26 +37,44 @@ char ChonPhepTinh(){
 	}while(pt!='+'&&pt!='-'&&pt!='*'&&pt!='/');
 	return pt;
 }
+int ucln(int a,int b){
+	if(a<0) a*=-1;
+	if(b<0) b*=-1;
+	while(a!=b){
+		if(a>b) a-=b;
+		else b-=a;
+	}
+	return a;
+}
+void ToiGian(int *tskq,int *mskq){
+	int u = ucln(*tskq,*mskq);
+	*tskq /= u;
+	*mskq /= u;
+}
 void NhapCacPhanSo(int ts1, int ms1, int ts2, int ms2, int *tskq, int *mskq, int *error){
 	char phepToan=ChonPhepTinh();
 	switch(phepToan){
 		case '+':
 			Tong(ts1,ms1,ts2,ms2,tskq,mskq);
+			ToiGian(tskq,mskq);
 			printf("%d / %d",*tskq,*mskq);
 			break;
 		case '-':
 			Hieu(ts1, ms1, ts2,ms2,tskq,mskq);
+			ToiGian(tskq,mskq);
 			printf("%d / %d",*tskq,*mskq);
 			break;
 		case '*':
 			Tich(ts1, ms1, ts2,ms2,tskq,mskq);
+			ToiGian(tskq,mskq);
 			printf("%d / %d",*tskq,*mskq);
 			break;
 		default:
 			Thuong(ts1, ms1, ts2,ms2,tskq,mskq,error);
 			if(*error == 1){
-				printf("Error: Division by zero is not allowed.\n");
+				printf("Loi phep tinh.\n");
 			}else{
+				ToiGian(tskq,mskq);
 				printf("%d / %d",*tskq,*mskq);
 			}
 	}
@@ -69,4 +87,3 @@ int main(){
     Nhap(&ts2, &ms2);
 	NhapCacPhanSo(ts1,ms1,ts2,ms2,&tskq,&mskq,&error);
 }
-
