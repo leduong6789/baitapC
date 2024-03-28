@@ -1,36 +1,57 @@
+// sieu so nguyen to 
 #include <stdio.h>
-int main(){
-	float a,b,c,dc;
-	printf("Nhap diem chuan: ");
-	scanf("%f",&dc);
-	printf("Nhap diem 3 mon thi: ");
-	scanf("%f %f %f",&a,&b,&c);
-	char kv;
-	int dt;
-	do{
-		printf("Nhap khu vuc (A,B,C,X): ");
-		scanf(" %c",&kv);
-		if(kv!='A' && kv!='B' && kv!='C' && kv!='X'){
-			char trl;
-			printf("Ban co muon nhap lai khu vuc khong (y/n)");
-			scanf(" %c",&trl);
-			if(trl=='n'||trl=='N') break;
-		}
-	}while(kv!='A' && kv!='B' && kv!='C' && kv!='X');
-	do{
-		printf("Nhap doi tuong uu tien (1,2,3,0):");
-		scanf("%d",&dt);
-	}while(dt!=1 && dt!=2 && dt!=3 && dt!=0);
-	
-	float sum;
-	sum = a+b+c;
-	if(kv=='A') sum += 2;
-	if(kv=='B') sum +=1;
-	if(kv=='C') sum += 0.5;
-	if(dt==1) sum += 2.5;
-	if(dt==2) sum += 1.5;
-	if(dt==3) sum += 1;
-	if(sum>=dc) printf("Dau [%.2f]",sum);
-	else printf("Rot [%.2f]",sum);
+int isprime(int n,int i){
+    if(n<=2) return n==2;
+    if(n % i==0) return 0;
+    if(i*i > n) return 1;
+    return isprime(n,i+1);
 }
-
+int isSuperPrime(int n){
+    if(!isprime(n,2)) return 0;
+    if(n<10) return 1;
+    return isSuperPrime(n/10);
+}
+// so emirp
+int sodao(int n,int sdn){
+    if(n==0) return sdn;
+    else{
+        sdn = sdn*10 + n%10;
+        return sodao(n/10,sdn);
+    }
+}
+int isEmirp(int n){
+    if(!isprime(n,2)) return 0;
+    int kq = sodao(n,0);
+    return kq != n && isprime(kq,2);
+}
+int findMaxSoSieuNguyenTo(int A[],int n){
+    if(n==0) return -1;
+    if(n==1) return isSuperPrime(A[0]) ? A[0] : 0;
+    else{
+        int kq = findMaxSoSieuNguyenTo(A,n-1);
+        if(A[n-1] < kq && isSuperPrime(A[n-1])) return A[n-1];
+        return kq;
+    }
+}
+int findmaxSoEmirp(int A[],int n){
+    if(n==0) return -1;
+    if(n==1) return isEmirp(A[0]) ? A[0] : 0;
+    else{
+        int kq = findmaxSoEmirp(A,n-1);
+        if(A[n-1] < kq && isEmirp(A[n-1])) return A[n-1];
+        return kq;
+    }
+}
+int main() {
+    int num;
+    int A[5] = { 79, 97, 107,17, 31  };
+    // printf("Nhap so can kiem tra: ");
+    // scanf("%d", &num);
+    // if (isEmirp(num))
+    //     printf("%d la so emirp.\n", num);
+    // else
+    //     printf("%d khong phai la so emirp.\n", num);
+    int x = findmaxSoEmirp(A,5);
+    printf("%d",x);
+    return 0;
+}
