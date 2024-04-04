@@ -1,30 +1,49 @@
 #include <stdio.h>
+#include <stdlib.h> // For abs function
 
-int main(){
-	int lo,tien_du,x=4;
-	long long von,so_co;
-	float gia_cophieu,gia_moi;
-	do{
-		printf("Nhap so von: ");
-		scanf("%ld",&von);
-	}while(von<=0);
-	do{
-		printf("Nhap loai lo: ");
-		scanf("%d",&lo);
-	}while(lo!=10 && lo !=100);
-	gia_cophieu = 25000;
-	so_co = (von/gia_cophieu)/lo*lo;
-	tien_du = von - gia_cophieu*so_co;
-	printf("Vay co the mua toi da %d co phieu theo lo %d.\n",so_co,lo);
-	printf("So tien con thua la: %d\n",tien_du);
-	// 50 +50*(x/10) = 50*1.4
-	printf("De tang von dieu le len 40 phan tram can tra co tuc theo ti le 10:%d.\n",x);
-	so_co = so_co + (int)(so_co*0.4);
-	gia_moi = (float)von/so_co;
-	printf("Vay sau khi duoc tra co tuc thi so co phieu la %d.\n",so_co);
-	printf("Gia moi co phieu sau khi duoc pha loang: %.2f.\n",gia_moi);
-	so_co = so_co%lo;
-	printf("Vay con thua %d co.",so_co);
-	return 0;
-	
+typedef struct {
+    int Numerator;
+    int Denominator;
+} Fractions;
+
+// Hàm tìm ước chung lớn nhất của hai số
+int findGCD(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
 }
+
+// Hàm rút gọn phân số
+void ReduceFraction(Fractions *frac) {
+    int gcd = findGCD(abs(frac->Numerator), abs(frac->Denominator));
+    frac->Numerator /= gcd;
+    frac->Denominator /= gcd;
+}
+
+// Hàm rút gọn tất cả các phân số trong mảng
+void ReduceAllFractions(Fractions lsfrac[], int size) {
+    for (int i = 0; i < size; ++i) {
+        if (lsfrac[i].Denominator < 0 && lsfrac[i].Numerator <0) {
+            ReduceFraction(&lsfrac[i]);
+            continue;
+        }
+        if (lsfrac[i].Denominator < 0) {
+            lsfrac[i].Numerator *= -1; // Chuyển tử số thành số âm
+            lsfrac[i].Denominator *= -1; // Chuyển mẫu số thành số dương
+        }
+        ReduceFraction(&lsfrac[i]);
+    }
+}
+
+// Hàm hiển thị các phân số đã được rút gọn
+void DisplayFractions(Fractions lsfrac[], int size) {
+    for (int i = 0; i < size; ++i) {
+        printf("(%d/%d) ", lsfrac[i].Numerator, lsfrac[i].Denominator);
+    }
+    printf("\n");
+}
+
+
