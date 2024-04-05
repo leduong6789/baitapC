@@ -72,6 +72,47 @@ float avgPerPrimeHelper(int a[], int n, int index, int sum) {
 float avgPerPrime(int a[], int n) {
     return avgPerPrimeHelper(a, n, 0, 0);
 }
+typedef struct {
+    float x;
+    float y;
+} Point;
+
+float KhoangCach(Point A, Point B) {
+    return sqrt(pow(B.x - A.x, 2) + pow(B.y - A.y, 2));
+}
+
+float KCMin(Point points[], int n) {
+    float min = KhoangCach(points[0], points[1]);
+
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            float distance = KhoangCach(points[i], points[j]);
+            if (distance < min) {
+                min = distance;
+            }
+        }
+    }
+
+    return min;
+}
+
+float KcMax(Point points[], int n) {
+    float max = KhoangCach(points[0], points[1]);
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            float distance = KhoangCach(points[i], points[j]);
+            if (distance > max) {
+                max = distance;
+            }
+        }
+    }
+
+    return max;
+}
+float TheTich(float d, float h) {
+    float r = d / 2.0;
+    return (1.0 / 3.0) * M_PI * pow(r, 2) * h;
+}
 int main() {
     int a[5] = {1,2,3,8,29};
     float x = avgPerPrime(a,5);
