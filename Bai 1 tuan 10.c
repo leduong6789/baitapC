@@ -24,12 +24,25 @@ int CongSo(int n,int s){
 		CongSo(n/10,s);
 	}
 }
-int PerPrime(int n){
-	if(!isPrime(n,2)) return 0;
-	if(n < 10) return isPrime(n,2);
-	int m = CongSo(n,0);
-	return isPrime(m,2) && PerPrime(m);
-	
+int sumOfDigits(int n) {
+    if (n == 0)
+        return 0;
+    return (n % 10) + sumOfDigits(n / 10);
+}
+
+int PerPrime(int n) {
+    if (!isPrime(n, 2))
+        return 0;
+    if (n < 10)
+        return isPrime(n, 2);
+
+    int sum = sumOfDigits(n);
+    return PerPrime(sum);
+}
+int Count(int a[],int n,int i){
+	if(i>=n) return 0;
+	int cnt = PerPrime(a[i]);
+	return cnt + Count(a,n,i+1);
 }
 int Max(int a[], int n) {
     if (n == 1)
@@ -42,26 +55,27 @@ int Max(int a[], int n) {
             return x;
     }
 }
-float avgSuperPrimeHelper(int a[], int n, int index, int count, int sum) {
+float avgPerPrimeHelper(int a[], int n, int index, int count, int sum) {
+	int cnt = Count(a,n,0);
     if (index == n) {
         if (count == 0) return 0; // To avoid division by zero
-        return (float) sum / count;
+        return (float) sum/cnt;
     }
 
-    if (SieuNguyenTo(a[index])) {
+    if (PerPrime(a[index])) {
         count++;
         sum += a[index];
     }
 
-    return avgSuperPrimeHelper(a, n, index + 1, count, sum);
+    return avgPerPrimeHelper(a, n, index + 1, count, sum);
 }
 
-float avgSuperPrime(int a[], int n) {
-    return avgSuperPrimeHelper(a, n, 0, 0, 0);
+float avgPerPrime(int a[], int n) {
+    return avgPerPrimeHelper(a, n, 0, 0, 0);
 }
 int main() {
-    int a[5] = {6,733,2399,2939,3119 };
-    float x = avgSuperPrime(a, 5);
+    int a[5] = {1,2,3,8,29};
+    float x = avgPerPrime(a,5);
     printf("%.2f", x);
     return 0;
 }
