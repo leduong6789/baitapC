@@ -55,23 +55,22 @@ int Max(int a[], int n) {
             return x;
     }
 }
-float avgPerPrimeHelper(int a[], int n, int index, int count, int sum) {
+float avgPerPrimeHelper(int a[], int n, int index, int sum) {
 	int cnt = Count(a,n,0);
     if (index == n) {
-        if (count == 0) return 0; // To avoid division by zero
+        if (cnt == 0) return 0; // To avoid division by zero
         return (float) sum/cnt;
     }
 
     if (PerPrime(a[index])) {
-        count++;
         sum += a[index];
     }
 
-    return avgPerPrimeHelper(a, n, index + 1, count, sum);
+    return avgPerPrimeHelper(a, n, index + 1, sum);
 }
 
 float avgPerPrime(int a[], int n) {
-    return avgPerPrimeHelper(a, n, 0, 0, 0);
+    return avgPerPrimeHelper(a, n, 0, 0);
 }
 int main() {
     int a[5] = {1,2,3,8,29};
