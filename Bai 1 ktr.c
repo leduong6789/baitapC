@@ -1,49 +1,35 @@
 #include <stdio.h>
-#include <stdlib.h> // For abs function
 
+// Ð?nh nghia ki?u d? li?u s? ph?c
 typedef struct {
-    int Numerator;
-    int Denominator;
-} Fractions;
+    int a;
+    int b;
+} Complex;
 
-// Hàm tìm ước chung lớn nhất của hai số
-int findGCD(int a, int b) {
-    while (b != 0) {
-        int temp = b;
-        b = a % b;
-        a = temp;
-    }
-    return a;
+// Hàm nhân hai s? ph?c
+Complex multiply_complex(Complex a, Complex b) {
+    Complex result;
+    result.a = a.a * b.a - a.b * b.b;
+    result.b = a.a * b.b + a.b * b.a;
+    return result;
 }
 
-// Hàm rút gọn phân số
-void ReduceFraction(Fractions *frac) {
-    int gcd = findGCD(abs(frac->Numerator), abs(frac->Denominator));
-    frac->Numerator /= gcd;
-    frac->Denominator /= gcd;
-}
-
-// Hàm rút gọn tất cả các phân số trong mảng
-void ReduceAllFractions(Fractions lsfrac[], int size) {
-    for (int i = 0; i < size; ++i) {
-        if (lsfrac[i].Denominator < 0 && lsfrac[i].Numerator <0) {
-            ReduceFraction(&lsfrac[i]);
-            continue;
-        }
-        if (lsfrac[i].Denominator < 0) {
-            lsfrac[i].Numerator *= -1; // Chuyển tử số thành số âm
-            lsfrac[i].Denominator *= -1; // Chuyển mẫu số thành số dương
-        }
-        ReduceFraction(&lsfrac[i]);
+// Hàm d? quy d? nhân t?t c? các s? ph?c trong m?ng C
+Complex multiply_complex_array(Complex C[], int n) {
+    if (n == 1) {
+        return C[0];
+    } else {
+        // Ð? quy nhân (n-1) s? ph?c d?u tiên
+        Complex result = multiply_complex(C[n-1], multiply_complex_array(C, n-1));
+        return result;
     }
 }
 
-// Hàm hiển thị các phân số đã được rút gọn
-void DisplayFractions(Fractions lsfrac[], int size) {
-    for (int i = 0; i < size; ++i) {
-        printf("(%d/%d) ", lsfrac[i].Numerator, lsfrac[i].Denominator);
-    }
-    printf("\n");
+int main() {
+    // Ví d? s? d?ng
+    Complex C[] = {{2, 1}, {2, 3}};
+    int n = sizeof(C) / sizeof(C[0]);
+    Complex result = multiply_complex_array(C, n);
+    printf("%d + %di\n", result.a, result.b);
+    return 0;
 }
-
-
