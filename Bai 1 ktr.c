@@ -1,254 +1,358 @@
-#include<stdio.h> 
-#include<stdlib.h> 
-#include<math.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-//Cau 1
-long long A = 100000, X = 1000;
-long Luong(int n) {
-	if(n == 1 || n == 2) return A;
-	if(n % 3 != 0) return Luong(n-1) + X;
-	return (Luong(n-1) - (n-3)*X) * 1.1 + (n-2)*X;
+// Định nghĩa cấu trúc cho một đơn thức
+typedef struct Term {
+    int coefficient; // Hệ số
+    int exponent; // Số mũ
+    struct Term* next; // Con trỏ đến đơn thức tiếp theo
+} Term;
+
+// Hàm tạo một đơn thức mới
+Term* createTerm(int coefficient, int exponent) {
+    Term* newTerm = (Term*)malloc(sizeof(Term));
+    newTerm->coefficient = coefficient;
+    newTerm->exponent = exponent;
+    newTerm->next = NULL;
+    return newTerm;
 }
 
-long long LuongChinh(long long A, int n) {
-	if( n == 1 || n == 2) return A;
-	if(n <= 3) {
-		return A * 1.1;
-	}
-	return LuongChinh(A*1.1, n-3);
+// Hàm chèn một đơn thức vào đa thức
+void insertTerm(Term** head, int coefficient, int exponent) {
+    Term* newTerm = createTerm(coefficient, exponent);
+    if (*head == NULL || (*head)->exponent <= exponent) {
+        newTerm->next = *head;
+        *head = newTerm;
+    } else {
+        Term* temp = *head;
+        while (temp->next != NULL && temp->next->exponent > exponent) {
+            temp = temp->next;
+        }
+        newTerm->next = temp->next;
+        temp->next = newTerm;
+    }
 }
-long long L(int n) {
-	return LuongChinh(A, n) + X*(n-2);
+
+// Hàm tìm đơn thức có hệ số nhỏ nhất
+Term* findSmallestCoefficientTerm(Term* head) {
+    if (head == NULL) return NULL;
+    Term* smallest = head;
+    Term* temp = head->next;
+    while (temp != NULL) {
+        if (temp->coefficient < smallest->coefficient) {
+            smallest = temp;
+        }
+        temp = temp->next;
+    }
+    return smallest;
 }
-//Cau 2
-int IsPrime(int n) {
-	for(int i = 2; i <= sqrt(n); i++) {
-		if(n % i == 0) return 0;
-	}
-	return n > 1;
+
+// Hàm in đa thức
+void printPolynomial(Term* head) {
+    Term* temp = head;
+    while (temp != NULL) {
+        printf("%dx^%d ", temp->coefficient, temp->exponent);
+        if (temp->next != NULL) printf("+ ");
+        temp = temp->next;
+    }
+    printf("\n");
 }
-void CreatPrime(int *&fp1, int &n) {
-	printf("Nhap n so Prime: ");
-	scanf("%d", &n);
-	fp1 = (int*) malloc(sizeof(int)*n);
-	FILE * fp = fopen("Prime.txt", "wt");
-	
-	fprintf(fp, "%d\n", n);
-	
-	int dem = 0;
-	int k = 2;
-	while(dem < n) {
-		if(IsPrime(k)) {
-			fp1[dem++] = k;
-			fprintf(fp, "%d ", k);
-		}
-		k++;
-	}
-	fclose(fp);
-}
-int Fibo(int n) {
-	if(n <= 0) return 0;
-	if(n == 1 || n == 2) return 1;
-	return Fibo(n-1) + Fibo(n-2);
-}
-void CreatFibo(int *&fp2, int &m) {
-	printf("Nhap m so Fibo: ");
-	scanf("%d", &m);
-	fp2 = (int*) malloc(sizeof(int)*m);
-	FILE * fp = fopen("Fibo.txt", "wt");
-	fprintf(fp, "%d\n", m);
-	
-	for(int i = 1; i <= m; i++) {
-		int tam = Fibo(i);
-		fp2[i-1] = tam;
-		fprintf(fp,"%d ", tam);
-	}
-	fclose(fp);
-}
-void CreatPrimeFibo(int *fp1, int n, int *fp2, int m, int *&fp, int &k) {
-	int tam;
-	//Doc File Prime
-	FILE * fo = fopen("Prime.txt", "rt");
-	fscanf(fo,"%d\n", &n);
-	fp1 = (int*) malloc(sizeof(int)*n);
-	int i = 0, j;
-	printf("Mang Prime: ");
-	while(fscanf(fo, "%d ", &tam) != EOF) {
-		fp1[i++] = tam;
-		printf("%d ", tam);
-	}
-	printf("\n");
-	fclose(fo);
-	//Doc file Fibo
-	fo = fopen("Fibo.txt", "rt");
-	fscanf(fo,"%d\n", &m);
-	fp2 = (int*) malloc(sizeof(int)*m);
-	i = 0;
-	printf("Mang Fibo: ");
-	while(fscanf(fo, "%d ", &tam) != EOF) {
-		fp2[i++] = tam;
-		printf("%d ", tam);
-	}
-	printf("\n");
-	fclose(fo);
-	//Ghi file PrimeFibo.
-	fo = fopen("PrimeFibo.txt", "wt");
-	fp = (int*) malloc(sizeof(int)*(n*m));
-	k = 0;
-	i = 0, j = 0;
-	while(i < n && j < m) {
-		if(fp1[i] <= fp2[j]) {
-			fp[k++] = fp1[i];
-			while(fp1[i] == fp2[j]) j++;
-			i++;
-		}
-		else{
-			fp[k++] = fp2[j++];
-		}
-	}
-	if(i == n) {
-		for(int i = j; i < m; i++) {
-			fp[k++] = fp2[i];
-		}
-	}
-	else{
-		for(int j = i; j < n; j++) {
-			fp[k++] = fp1[j];
-		}
-	}
-	//Xoa trung gan nhau
-	j = 0;
-	for(i = 0; i < k; i++) {
-		if(fp[i] != fp[i+1] || i == (k-1)) {
-			fp[j++] = fp[i];
-		}
-	}
-	k = j;
-	
-	fprintf(fo, "%d\n", k);
-	for(i = 0; i < k; i++) {
-		fprintf(fo, "%d ", fp[i]);
-	}
-	printf("Mang Tong PrimeFibo: ");
-	for(i = 0; i < k; i++) {
-		printf( "%d ", fp[i]);
-	}
-	fclose(fo);
-}
-//Cau 3
-typedef struct {
-	char MVId[6];
-	char MVName[26];
-	char Author[26];
-	long long View;	
-}MV;
-void InputMVArr(MV MVArr[], int &n) {
-	printf("Nhap so MV: ");
-	scanf("%d", &n);
-	for(int i = 0; i < n; i++) {
-		printf("Nhap ma MV: ");
-		scanf("%s", MVArr[i].MVId);
-		while(getchar() != '\n');
-		printf("Nhap ten MV: ");
-		fgets(MVArr[i].MVName, sizeof(MVArr[i].MVName), stdin);
-		printf("Nhap ten tac gia: ");
-		fgets(MVArr[i].Author, sizeof(MVArr[i].Author), stdin);
-		printf("Nhap so View: ");
-		scanf("%lld", &MVArr[i].View);
-		for(int j = 0; j < 26; j++) {
-			if(MVArr[i].MVName[j] == '\n'){
-				MVArr[i].MVName[j] = '\0';
-			}
-		}
-		for(int j = 0; j < 26; j++) {
-			if(MVArr[i].Author[j] == '\n'){
-				MVArr[i].Author[j] = '\0';
-			}
-		}
-	}
-}
-void OutputMVArr(MV MVArr[], int n) {
-	printf("STT  Ma Music Video  Ten Music Video           Tac Gia                   So Luong View\n");
-	for(int i = 0; i < n; i++) {
-		printf("%-5d%-16s%-26s%-26s%lld\n", i+1, MVArr[i].MVId, MVArr[i].MVName, MVArr[i].Author, MVArr[i].View);
-	}
-}
-void ViewNhieuNhat(MV MVArr[], int n) {
-	long long maxview = 0;
-	for(int i = 0; i < n; i++) {
-		if(maxview < MVArr[i].View) {
-			maxview = MVArr[i].View;
-		}
-	}
-	printf("STT  Ma Music Video  Ten Music Video           Tac Gia                   So Luong View\n");
-	int dem = 0;
-	for(int i = 0; i < n; i++) {
-		if(MVArr[i].View == maxview) {
-			dem++;
-			printf("%-5d%-16s%-26s%-26s%lld\n", i+1, MVArr[i].MVId, MVArr[i].MVName, MVArr[i].Author, MVArr[i].View);
-		}
-	}
-	if(dem == 0) printf("Khong co MV.");
-}
-void XoaMV_TNOAA(MV MVArr[], int &n) {
-	char ac[] = "There's No One At All";
-	for(int i = 0; i < n; i++) {
-		if(strcmp (MVArr[i].MVName, ac) == 0) {// -1 0 1
-			for(int j = i; j < n-1; j++) {
-				MVArr[i] = MVArr[i+1];
-			}
-			n--;
-		}
-	}
-}
+
 int main() {
-	int chon;
-	printf("Nhap cau: ");
-	lai:
-	scanf("%d", &chon);
-	switch(chon) {
-		case 1:
-			int n;
-			printf("Nhap nam: ");
-			scanf("%d", &n);
-			printf("Luong sau %d nam la: %lld\n", n, L(n));
-			printf("Luong sau %d nam la: %lld", n, Luong(n));
-			break;
-		case 2:
-			int m, k, *fp1, *fp2, *fp;
-			CreatPrime(fp1, n);
-			CreatFibo(fp2, m);
-			CreatPrimeFibo(fp1, n, fp2, m, fp, k);
-			free(fp1);
-			free(fp2);
-			free(fp);
-			break;
-		case 3:
-			MV MVArr[100];
-			int chon3;
-			printf("Menu:\n 1. Nhap va Xuat mang\n 2. Xuat MV co View cao nhat\n 3. Xoa MV There's No One At All\n 4. Thoat\nMoi nhap lua chon: ");
-			scanf("%d", &chon3);
-			switch(chon3) {
-				case 1:
-					InputMVArr(MVArr, n);
-					OutputMVArr(MVArr, n);
-					break;
-				case 2:
-					ViewNhieuNhat(MVArr, n);
-					break;
-				case 3:
-					XoaMV_TNOAA(MVArr, n);
-					break;
-				case 4:
-					break;
-				default:
-					printf("Nhap sai roi\nMoi nhap lai: ");
-			}
-			break;
-		default:
-			printf("Nhap sai roi ban eyy!!!\nNhap lai di ban: ");
-			goto lai;
-	}
-	return 0;
+    Term* polynomial = NULL;
+
+    // Chèn các đơn thức vào đa thức
+    insertTerm(&polynomial, 4, 3);
+    insertTerm(&polynomial, 3, 5);
+    insertTerm(&polynomial, 5, 1);
+    insertTerm(&polynomial, 1, 4);
+
+    // In đa thức
+    printf("Da thuc: ");
+    printPolynomial(polynomial);
+
+    // Tìm đơn thức có hệ số nhỏ nhất
+    Term* smallestTerm = findSmallestCoefficientTerm(polynomial);
+    if (smallestTerm != NULL) {
+        printf("Don thuc co he so nho nhat: %dx^%d\n", smallestTerm->coefficient, smallestTerm->exponent);
+    }
+
+    return 0;
+}
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+#define MAX 100
+
+// Cấu trúc ngăn xếp (stack)
+typedef struct Stack {
+    int top;
+    int items[MAX];
+} Stack;
+
+// Hàm khởi tạo ngăn xếp
+void initStack(Stack* s) {
+    s->top = -1;
+}
+
+// Hàm kiểm tra ngăn xếp có rỗng không
+int isEmpty(Stack* s) {
+    return s->top == -1;
+}
+
+// Hàm kiểm tra ngăn xếp có đầy không
+int isFull(Stack* s) {
+    return s->top == MAX - 1;
+}
+
+// Hàm thêm một phần tử vào ngăn xếp
+void push(Stack* s, int value) {
+    if (!isFull(s)) {
+        s->items[++(s->top)] = value;
+    }
+}
+
+// Hàm lấy một phần tử ra khỏi ngăn xếp
+int pop(Stack* s) {
+    if (!isEmpty(s)) {
+        return s->items[(s->top)--];
+    }
+    return -1; // Trả về -1 nếu ngăn xếp rỗng
+}
+
+// Hàm lấy phần tử đầu ngăn xếp mà không lấy ra
+int peek(Stack* s) {
+    if (!isEmpty(s)) {
+        return s->items[s->top];
+    }
+    return -1; // Trả về -1 nếu ngăn xếp rỗng
+}
+
+// Hàm xác định độ ưu tiên của toán tử
+int precedence(char operator) {
+    switch (operator) {
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2;
+        case '^':
+            return 3;
+        default:
+            return 0;
+    }
+}
+
+// Hàm kiểm tra ký tự có phải là toán tử không
+int isOperator(char ch) {
+    return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^';
+}
+
+// Hàm chuyển đổi biểu thức infix sang postfix
+void infixToPostfix(char* infix, char* postfix) {
+    Stack s;
+    initStack(&s);
+    int j = 0;
+    for (int i = 0; infix[i] != '\0'; i++) {
+        char ch = infix[i];
+        if (isdigit(ch)) {
+            postfix[j++] = ch;
+        } else if (ch == '(') {
+            push(&s, ch);
+        } else if (ch == ')') {
+            while (!isEmpty(&s) && peek(&s) != '(') {
+                postfix[j++] = pop(&s);
+            }
+            pop(&s); // Lấy dấu '(' ra khỏi ngăn xếp
+        } else if (isOperator(ch)) {
+            while (!isEmpty(&s) && precedence(peek(&s)) >= precedence(ch)) {
+                postfix[j++] = pop(&s);
+            }
+            push(&s, ch);
+        }
+    }
+    while (!isEmpty(&s)) {
+        postfix[j++] = pop(&s);
+    }
+    postfix[j] = '\0';
+}
+
+// Hàm tính giá trị biểu thức postfix
+int evaluatePostfix(char* postfix) {
+    Stack s;
+    initStack(&s);
+    for (int i = 0; postfix[i] != '\0'; i++) {
+        char ch = postfix[i];
+        if (isdigit(ch)) {
+            push(&s, ch - '0');
+        } else if (isOperator(ch)) {
+            int val2 = pop(&s);
+            int val1 = pop(&s);
+            switch (ch) {
+                case '+': push(&s, val1 + val2); break;
+                case '-': push(&s, val1 - val2); break;
+                case '*': push(&s, val1 * val2); break;
+                case '/': push(&s, val1 / val2); break;
+                case '^': push(&s, val1 ^ val2); break;
+            }
+        }
+    }
+    return pop(&s);
+}
+
+int main() {
+    char infix[MAX] = "3+5*2/(7-2)";
+    char postfix[MAX];
+
+    // Chuyển đổi biểu thức infix sang postfix
+    infixToPostfix(infix, postfix);
+
+    printf("Bieu thuc postfix: %s\n", postfix);
+
+    // Tính giá trị biểu thức postfix
+    int result = evaluatePostfix(postfix);
+
+    printf("Gia tri bieu thuc: %d\n", result);
+
+    return 0;
+}
+#include <stdio.h>
+#include <stdlib.h>
+
+// Cấu trúc của một nút trong cây
+typedef struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+} Node;
+
+// Hàm tạo một nút mới
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+// Hàm chèn một phần tử vào cây BST
+Node* insert(Node* root, int data) {
+    if (root == NULL) {
+        return createNode(data);
+    }
+    if (data < root->data) {
+        root->left = insert(root->left, data);
+    } else if (data > root->data) {
+        root->right = insert(root->right, data);
+    }
+    return root;
+}
+
+// Hàm duyệt cây theo thứ tự trước (NLR)
+void preOrder(Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);
+        preOrder(root->left);
+        preOrder(root->right);
+    }
+}
+
+// Hàm duyệt cây theo thứ tự giữa (LNR)
+void inOrder(Node* root) {
+    if (root != NULL) {
+        inOrder(root->left);
+        printf("%d ", root->data);
+        inOrder(root->right);
+    }
+}
+
+// Hàm duyệt cây theo thứ tự sau (LRN)
+void postOrder(Node* root) {
+    if (root != NULL) {
+        postOrder(root->left);
+        postOrder(root->right);
+        printf("%d ", root->data);
+    }
+}
+
+// Hàm tìm một nút có giá trị nhỏ nhất
+Node* findMin(Node* root) {
+    while (root->left != NULL) {
+        root = root->left;
+    }
+    return root;
+}
+
+// Hàm xóa một nút khỏi cây BST
+Node* deleteNode(Node* root, int data) {
+    if (root == NULL) return root;
+    if (data < root->data) {
+        root->left = deleteNode(root->left, data);
+    } else if (data > root->data) {
+        root->right = deleteNode(root->right, data);
+    } else {
+        // Nút có một hoặc không có con
+        if (root->left == NULL) {
+            Node* temp = root->right;
+            free(root);
+            return temp;
+        } else if (root->right == NULL) {
+            Node* temp = root->left;
+            free(root);
+            return temp;
+        }
+        // Nút có hai con: lấy nút nhỏ nhất ở cây con bên phải
+        Node* temp = findMin(root->right);
+        root->data = temp->data;
+        root->right = deleteNode(root->right, temp->data);
+    }
+    return root;
+}
+
+int main() {
+    Node* root = NULL;
+
+    // Chèn các phần tử vào cây BST
+    root = insert(root, 50);
+    root = insert(root, 30);
+    root = insert(root, 20);
+    root = insert(root, 40);
+    root = insert(root, 70);
+    root = insert(root, 60);
+    root = insert(root, 80);
+
+    printf("Cay BST duyet theo thu tu truoc (NLR): ");
+    preOrder(root);
+    printf("\n");
+
+    printf("Cay BST duyet theo thu tu giua (LNR): ");
+    inOrder(root);
+    printf("\n");
+
+    printf("Cay BST duyet theo thu tu sau (LRN): ");
+    postOrder(root);
+    printf("\n");
+
+    printf("Xoa 20\n");
+    root = deleteNode(root, 20);
+    printf("Cay BST sau khi xoa 20 (duyet theo thu tu giua): ");
+    inOrder(root);
+    printf("\n");
+
+    printf("Xoa 30\n");
+    root = deleteNode(root, 30);
+    printf("Cay BST sau khi xoa 30 (duyet theo thu tu giua): ");
+    inOrder(root);
+    printf("\n");
+
+    printf("Xoa 50\n");
+    root = deleteNode(root, 50);
+    printf("Cay BST sau khi xoa 50 (duyet theo thu tu giua): ");
+    inOrder(root);
+    printf("\n");
+
+    return 0;
 }
